@@ -4,15 +4,15 @@ import java.util.ArrayList;
 public class Line {
 
     double slope;
-    double y_intercept;
-    double ave_dev;
+    double yIntercept;
+    double averageDeviation;
 
     ArrayList<Point> points = new ArrayList<>();
-    ArrayList<Point> error_points = new ArrayList<>();
+    ArrayList<Point> errorPoints = new ArrayList<>();
 
-    public Line(double slope, double y_intercept){
+    public Line(double slope, double yIntercept){
         this.slope = slope;
-        this.y_intercept = y_intercept;
+        this.yIntercept = yIntercept;
     }
 
     /**
@@ -21,7 +21,7 @@ public class Line {
      * @return Y value for given x coordinate
      */
     public double getY(double x){
-        return slope * x + y_intercept;
+        return slope * x + yIntercept;
     }
 
     /**
@@ -31,6 +31,7 @@ public class Line {
      * @param n_points Number of points to generate within given bounds
      */
     public void calculatePoints(int lb, int ub, int n_points){
+        clearPoints();
         for (int i = 0; i < n_points; i++){
             int x = ((int)(Math.random() * (ub - lb)) + lb);
             points.add(new Point(x, getY(x)));
@@ -45,23 +46,123 @@ public class Line {
     public void calculateErrorPoints(int error, boolean isPercent){
         for (Point point : points){
             if (isPercent){
-                error_points.add(new Point(point.x, (int)(point.y * (1 + (Math.random() * error * 2 - error) / 100))));
+                errorPoints.add(new Point(point.x, (int)(point.y * (1 + (Math.random() * error * 2 - error) / 100))));
             }
             else {
-                error_points.add(new Point(point.x, point.y + (int)(Math.random()*(2 * error) - error)));
+                errorPoints.add(new Point(point.x, point.y + (int)(Math.random()*(2 * error) - error)));
             }
         }
     }
 
     /**
      *
-     * @param error_points ArrayList of error points with (+/-) values to be compared to
+     * @param errorPoints ArrayList of error points with (+/-) values to be compared to
      */
-    public void calculateAverageDeviation(ArrayList<Point> error_points){
-        for (Point error_point : error_points) {
-            ave_dev += Math.pow((error_point.y - getY(error_point.x)), 2);
+    public void calculateAverageDeviation(ArrayList<Point> errorPoints){
+        for (Point errorPoint : errorPoints) {
+            averageDeviation += Math.abs((errorPoint.y - getY(errorPoint.x)));
         }
-        ave_dev /= error_points.size();
+        averageDeviation /= errorPoints.size();
+    }
+
+    /**
+     * This method determines the optimal slope of a line by comparing it to lines with slightly adjusted slopes
+     * (+/- slope increment) and selecting the slope that results in a lower AAD. If neither decision results in a lower
+     * AAD, the method terminates.
+     * @param errorPoints ArrayList of error points with (+/-) values to be compared to
+     * @param slopeIncrement (+/-) value to adjust the slope
+     */
+    public void adjustSlope(ArrayList<Point> errorPoints, double slopeIncrement){
+        double rightAAD = 0;
+        double leftAAD = 0;
+
+        while (true){
+
+            // Calculate the line's current AAD
+            calculateAverageDeviation(errorPoints);
+
+            // Calculate the line's AAD with adjusted slopes (+/- slope increments)
+            for (Point errorPoint : errorPoints) {
+                rightAAD += Math.abs(errorPoint.y - ((slope + slopeIncrement) * errorPoint.x + yIntercept));
+                leftAAD += Math.abs(errorPoint.y - ((slope - slopeIncrement) * errorPoint.x + yIntercept));
+            }
+            rightAAD /= errorPoints.size();
+            leftAAD /= errorPoints.size();
+
+
+            System.out.println("--- LEFT AAD:" + leftAAD);
+            System.out.println("--- RIGHT AAD:" + rightAAD);
+            System.out.println("---- CURRENT:" + averageDeviation);
+
+            // Adjust the line's slope *if* it results in a better AAD; otherwise, break.
+            if (averageDeviation < leftAAD && averageDeviation < rightAAD){
+                // If (+) slopeIncrement and (-) slopeIncrement both result in higher AAD, break from the loop.
+                break;
+            } else if (leftAAD < rightAAD){
+                // If (-) slopeIncrement results in a lower AAD (better fit), decrease the slope and repeat the program.
+                slope -= slopeIncrement;
+                calculatePoints(-400, 400, 1000);
+                System.out.println("decreased (-0.1): " + slope);
+            } else if (rightAAD <= leftAAD){
+                // If (+) slopeIncrement results in a lower AAD (better fit), increase the slope and repeat the program.
+                slope += slopeIncrement;
+                calculatePoints(-400, 400, 1000);
+                System.out.println("increased (+0.1): " + slope);
+            }
+        }
+    }
+
+    /**
+     * This method determines the optimal y-intercept of a line by comparing it to lines with slightly adjusted
+     * y-intercepts (+/- slope increments) and selecting the y-intercept that results in a lower AAD. If neither decision
+     * results in aa lower AAD, the method terminates.
+     * @param errorPoints ArrayList of error points with (+/-) values to be compared to
+     * @param yInterceptIncrement (+/-) value to adjust the y-intercept
+     */
+    public void adjustYIntercept(ArrayList<Point> errorPoints, double yInterceptIncrement){
+        double upAAD = 0;
+        double downAAD = 0;
+
+        while (true){
+
+            // Calculate the line's current AAD
+            calculateAverageDeviation(errorPoints);
+
+            // Calculate the line's AAD with adjusted slopes (+/- slope increments)
+            for (Point errorPoint : errorPoints) {
+                upAAD += Math.abs(errorPoint.y - (slope * errorPoint.x + (yIntercept + yInterceptIncrement)));
+                downAAD += Math.abs(errorPoint.y - (slope * errorPoint.x + (yIntercept + yInterceptIncrement)));
+            }
+            upAAD /= errorPoints.size();
+            downAAD /= errorPoints.size();
+
+            System.out.println("--- DOWN AAD:" + downAAD);
+            System.out.println("--- UP AAD:" + upAAD);
+            System.out.println("---- CURRENT:" + averageDeviation);
+
+            // Adjust the line's slope *if* it results in a better AAD; otherwise, break.
+            if (averageDeviation < downAAD && averageDeviation < upAAD){
+                // If (+) slopeIncrement and (-) slopeIncrement both result in higher AAD, break from the loop.
+                break;
+            } else if (downAAD < upAAD){
+                // If (-) slopeIncrement results in a lower AAD (better fit), decrease the slope and repeat the program.
+                yIntercept -= yInterceptIncrement;
+                calculatePoints(0, 800, 1000);
+                System.out.println("decreased (-0.1): " + yIntercept);
+            } else if (upAAD <= downAAD){
+                // If (+) slopeIncrement results in a lower AAD (better fit), increase the slope and repeat the program.
+                yIntercept += yInterceptIncrement;
+                calculatePoints(0, 800, 1000);
+                System.out.println("increased (+0.1): " + yIntercept);
+            }
+        }
+    }
+
+    /**
+     * Clear all points
+     */
+    public void clearPoints(){
+        points = new ArrayList<>();
     }
 
     /**
@@ -72,7 +173,7 @@ public class Line {
     public void drawPoints(Main main, Graphics2D g, Color color){
         g.setColor(color);
         for (Point point : points){
-            g.fillOval((int)point.x, main.screenHeight - (int)point.y, 4, 4);
+            g.fillOval((int)(point.screenX), (main.screenHeight - (int)point.screenY), 4, 4);
         }
     }
 
@@ -83,8 +184,8 @@ public class Line {
      */
     public void drawErrorPoints(Main main, Graphics2D g, Color color){
         g.setColor(color);
-        for (Point point : error_points){
-            g.fillOval((int)point.x, main.screenHeight - (int)point.y, 4, 4);
+        for (Point point : errorPoints){
+            g.fillOval((int)point.screenX, main.screenHeight - (int)point.screenY, 4, 4);
         }
     }
 
@@ -95,11 +196,23 @@ public class Line {
      * @param color Desired color
      */
     public void drawInfo(Main main, Graphics2D g, Color color){
+        g.setColor(color);
         g.drawString("Slope: " + slope, 10, 50);
-        g.drawString("Y-Intercept: " + y_intercept, 10, 70);
-        g.drawString("Ave-Dev: " + ave_dev, 10, 90);
+        g.drawString("Y-Intercept: " + yIntercept, 10, 70);
+        g.drawString("Ave-Dev: " + averageDeviation, 10, 90);
     }
 
 
+    /**
+     *
+     * @param time Milliseconds to pause for
+     */
+    public void pause(int time){
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

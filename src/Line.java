@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.util.ArrayList;
+import java.lang.Math;
 
 public class Line {
 
@@ -13,6 +14,11 @@ public class Line {
     public Line(double slope, double yIntercept){
         this.slope = slope;
         this.yIntercept = yIntercept;
+    }
+
+    public Line (Point a, Point b){
+        this.slope = (a.y - b.y) / (a.x - b.x);
+        this.yIntercept = a.y - (a.x * slope);
     }
 
     /**
@@ -89,10 +95,10 @@ public class Line {
             rightAAD /= errorPoints.size();
             leftAAD /= errorPoints.size();
 
-
-            System.out.println("--- LEFT AAD:" + leftAAD);
-            System.out.println("--- RIGHT AAD:" + rightAAD);
-            System.out.println("---- CURRENT:" + averageDeviation);
+//
+//            System.out.println("--- LEFT AAD:" + leftAAD);
+//            System.out.println("--- RIGHT AAD:" + rightAAD);
+//            System.out.println("---- CURRENT:" + averageDeviation);
 
             // Adjust the line's slope *if* it results in a better AAD; otherwise, break.
             if (averageDeviation < leftAAD && averageDeviation < rightAAD){
@@ -135,10 +141,10 @@ public class Line {
             }
             upAAD /= errorPoints.size();
             downAAD /= errorPoints.size();
-
-            System.out.println("--- DOWN AAD:" + downAAD);
-            System.out.println("--- UP AAD:" + upAAD);
-            System.out.println("---- CURRENT:" + averageDeviation);
+//
+//            System.out.println("--- DOWN AAD:" + downAAD);
+//            System.out.println("--- UP AAD:" + upAAD);
+//            System.out.println("---- CURRENT:" + averageDeviation);
 
             // Adjust the line's slope *if* it results in a better AAD; otherwise, break.
             if (averageDeviation < downAAD && averageDeviation < upAAD){

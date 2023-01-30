@@ -36,7 +36,7 @@ public class Line {
      * @param ub Upper bound for random generator
      * @param n_points Number of points to generate within given bounds
      */
-    public void calculatePoints(int lb, int ub, int n_points){
+    public void calculateRandomPoints(int lb, int ub, int n_points){
         clearPoints();
         for (int i = 0; i < n_points; i++){
             int x = ((int)(Math.random() * (ub - lb)) + lb);
@@ -91,11 +91,11 @@ public class Line {
             for (Point errorPoint : errorPoints) {
                 rightAAD += Math.abs(errorPoint.y - ((slope + slopeIncrement) * errorPoint.x + yIntercept));
                 leftAAD += Math.abs(errorPoint.y - ((slope - slopeIncrement) * errorPoint.x + yIntercept));
+
             }
             rightAAD /= errorPoints.size();
             leftAAD /= errorPoints.size();
 
-//
 //            System.out.println("--- LEFT AAD:" + leftAAD);
 //            System.out.println("--- RIGHT AAD:" + rightAAD);
 //            System.out.println("---- CURRENT:" + averageDeviation);
@@ -107,12 +107,12 @@ public class Line {
             } else if (leftAAD < rightAAD){
                 // If (-) slopeIncrement results in a lower AAD (better fit), decrease the slope and repeat the program.
                 slope -= slopeIncrement;
-                calculatePoints(-400, 400, 1000);
+                calculateRandomPoints(-400, 400, 1000);
                 System.out.println("decreased (-0.1): " + slope);
             } else if (rightAAD <= leftAAD){
                 // If (+) slopeIncrement results in a lower AAD (better fit), increase the slope and repeat the program.
                 slope += slopeIncrement;
-                calculatePoints(-400, 400, 1000);
+                calculateRandomPoints(-400, 400, 1000);
                 System.out.println("increased (+0.1): " + slope);
             }
         }
@@ -153,12 +153,12 @@ public class Line {
             } else if (downAAD < upAAD){
                 // If (-) slopeIncrement results in a lower AAD (better fit), decrease the slope and repeat the program.
                 yIntercept -= yInterceptIncrement;
-                calculatePoints(0, 800, 1000);
+                calculateRandomPoints(0, 800, 1000);
                 System.out.println("decreased (-0.1): " + yIntercept);
             } else if (upAAD <= downAAD){
                 // If (+) slopeIncrement results in a lower AAD (better fit), increase the slope and repeat the program.
                 yIntercept += yInterceptIncrement;
-                calculatePoints(0, 800, 1000);
+                calculateRandomPoints(0, 800, 1000);
                 System.out.println("increased (+0.1): " + yIntercept);
             }
         }
@@ -205,7 +205,6 @@ public class Line {
         g.setColor(color);
         g.drawString("Slope: " + slope, 10, 50);
         g.drawString("Y-Intercept: " + yIntercept, 10, 70);
-        g.drawString("Ave-Dev: " + averageDeviation, 10, 90);
     }
 
 

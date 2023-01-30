@@ -11,19 +11,15 @@ public class Point{
         this.x = x;
         this.y = y;
 
-        convertPoint();
+        adjustScreenPosition(700);
     }
 
     public void printInfo(){
         System.out.println("Point: " + this.x + " " + this.y);
     }
 
-    public void convertPoint() {
-//        screenX = (int) (x + (700 / 2));
-//        screenY = (int) (x + (700 / 2));
-
-        screenX = x + (int)(700 / 2);
-        screenY = y + (int)(700 / 2);
-
+    public void adjustScreenPosition(int screenHeight) {
+        screenX = x + (int)(screenHeight / 2);
+        screenY = y + (int)(screenHeight / 2);
     }
 }

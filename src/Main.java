@@ -10,13 +10,20 @@ public class Main implements Runnable {
     public Canvas canvas;
     public BufferStrategy bufferStrategy;
 
-    public int screenWidth = 700;
+    public JPanel menuBarPanel;
+    public MenuBar menuBar;
+
+    public int screenWidth = 1000;
     public int screenHeight = 700;
+
+    public int menuPanelWidth = 250;
+    public int graphPanelWidth = screenWidth - menuPanelWidth;
+
+    public Graph graph;
 
     public Line modelLine;
     public Line initialLine;
     public Line adjustedLine;
-    public ArrayList<Line> adjustedLines;
 
     public static void main(String[] args){
         Main ex = new Main();
@@ -26,20 +33,33 @@ public class Main implements Runnable {
     public Main(){
         setUpGraphics();
 
-        System.out.println("Main started");
-        modelLine = new Line(2, 7);
-        modelLine.calculatePoints(-400, 400, 2500);
-        modelLine.calculateErrorPoints(500, false);
-        System.out.println("Calculated main line");
+        // create a new graph
+        graph = new Graph(graphPanelWidth, screenHeight);
 
-        double slope = Math.random()*4;
+        // create model line
+        modelLine = new Line(2, 7);
+
+        // calculate points for model line
+        modelLine.calculateRandomPoints(-400, 400, 2500);
+
+        // calculate error points from model line
+        modelLine.calculateErrorPoints(500, false);
+
+        // slope and yIntercept for new line
+        double slope = Math.random()*1;
         double yIntercept = Math.random()*100;
 
+        // initial line (red)
         initialLine = new Line(slope, yIntercept);
-        initialLine.calculatePoints(-400, 400, 2000);
+        initialLine.calculateRandomPoints(-400, 400, 2000);
 
-        adjustedLine = calculateAdjustedLines(slope, yIntercept, 10);
-        adjustedLine.calculatePoints(-400, 400, 1000);
+        // adjusted line (green)
+        adjustedLine = calculateAdjustedLines(slope, yIntercept, 30);
+
+        // calculate points for adjusted line
+        adjustedLine.calculateRandomPoints(-400, 400, 1000);
+
+
 
     }
 
@@ -52,6 +72,8 @@ public class Main implements Runnable {
         for (int i = 0; i < iterations; i++){
 
             Line testLine = new Line(slope, yIntercept);
+//            testLine.adjustSlopeInterceptForm(modelLine.errorPoints, 0.1, 0.1);
+
             testLine.adjustSlope(modelLine.errorPoints, 0.1);
             testLine.adjustYIntercept(modelLine.errorPoints, 0.1);
             testLine.calculateAverageDeviation(modelLine.errorPoints);
@@ -80,21 +102,29 @@ public class Main implements Runnable {
     }
 
     private void setUpGraphics(){
-        frame = new JFrame("Advanced Functions Graphing Calculator: By Bryan Sukidi");
+        frame = new JFrame("Advanced Functions Graphing Calculator");
 
         panel = (JPanel) frame.getContentPane();
-        panel.setPreferredSize(new Dimension(screenWidth,screenHeight));
+        panel.setPreferredSize(new Dimension(screenWidth, screenHeight));
         panel.setLayout(null);
 
-        canvas = new Canvas();
-        canvas.setBounds(0, 0, screenWidth, screenHeight);
-        canvas.setIgnoreRepaint(true);
+        menuBarPanel = new JPanel();
+        menuBar = new MenuBar(menuBarPanel, menuPanelWidth, screenHeight);
+        menuBar.setUpMenuBar();
+        panel.add(menuBar.menuPanel);
 
+
+        canvas = new Canvas();
+        canvas.setBounds(menuPanelWidth, 0, graphPanelWidth, screenHeight);
+        canvas.setIgnoreRepaint(true);
         panel.add(canvas);
+
+
+
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
-        frame.setResizable(false);
+        frame.setResizable(true);
         frame.setVisible(true);
 
         canvas.createBufferStrategy(2);
@@ -109,19 +139,21 @@ public class Main implements Runnable {
     public void render(){
         Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
         g.clearRect(0, 0, screenWidth, screenHeight);
+
+        graph.drawGrid(g, graphPanelWidth, screenHeight, new Color(0, 0, 0, 25));
+        graph.drawAxes(g, graphPanelWidth, screenHeight, Color.black);
+
+        graph.drawLine(g, modelLine, Color.lightGray);
+        graph.drawLine(g, initialLine, Color.red);
+        graph.drawLine(g, adjustedLine, Color.green);
+
+//        modelLine.drawPoints(this, g, Color.lightGray);
+//        modelLine.drawErrorPoints(this, g, Color.orange);
 //
-        g.drawOval(screenWidth / 2, screenHeight / 2, 4, 4);
-        g.drawLine(0, screenHeight / 2, screenWidth, screenHeight / 2);
-        g.drawLine(screenWidth / 2, 0, screenHeight / 2, screenHeight);
-
-
-        modelLine.drawPoints(this, g, Color.lightGray);
-        modelLine.drawErrorPoints(this, g, Color.orange);
-
-        initialLine.drawPoints(this, g, Color.red);
-
-        adjustedLine.drawPoints(this, g, Color.green);
-        adjustedLine.drawInfo(this, g, Color.black);
+//        initialLine.drawPoints(this, g, Color.red);
+//
+//        adjustedLine.drawPoints(this, g, Color.green);
+//        adjustedLine.drawInfo(this, g, Color.black);
 
 
         g.dispose();

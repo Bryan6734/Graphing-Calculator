@@ -31,14 +31,12 @@ public class Graph {
 
     public void drawLines(Graphics2D g2){
         for (Line line : lines){
-//            Color color = new Color((int)(Math.random()*255), (int)(Math.random()*255), (int)(Math.random()*255));
-            Color color = new Color(105, 229, 232);
-            drawLine(g2, line, color);
+            drawLine(g2, line);
         }
     }
 
-    public void drawLine(Graphics2D g2, Line line, Color color){
-        g2.setColor(color);
+    public void drawLine(Graphics2D g2, Line line){
+        g2.setColor(line.color);
         g2.setStroke(new BasicStroke(2));
 
         for (int i = 0; i < line.points.size() - 1; i++){

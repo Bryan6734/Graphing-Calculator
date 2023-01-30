@@ -8,6 +8,8 @@ public class Line {
     double yIntercept;
     double averageDeviation;
 
+    Color color = new Color((int)(Math.random()*255), (int)(Math.random()*255), (int)(Math.random()*255));
+
     ArrayList<Point> points = new ArrayList<>();
     ArrayList<Point> errorPoints = new ArrayList<>();
 

@@ -1,26 +1,27 @@
 import java.awt.*;
 import java.util.ArrayList;
 import java.lang.Math;
+import org.mariuszgromada.math.mxparser.*;
 
 public class Line {
 
     double slope;
     double yIntercept;
     double averageDeviation;
+    Expression expression;
 
     Color color = new Color((int)(Math.random()*255), (int)(Math.random()*255), (int)(Math.random()*255));
 
     ArrayList<Point> points = new ArrayList<>();
     ArrayList<Point> errorPoints = new ArrayList<>();
 
-    public Line(double slope, double yIntercept){
+    public Line (double slope, double yIntercept){
         this.slope = slope;
         this.yIntercept = yIntercept;
     }
 
-    public Line (Point a, Point b){
-        this.slope = (a.y - b.y) / (a.x - b.x);
-        this.yIntercept = a.y - (a.x * slope);
+    public Line (Expression expression){
+        this.expression = expression;
     }
 
     /**
@@ -30,6 +31,13 @@ public class Line {
      */
     public double getY(double x){
         return slope * x + yIntercept;
+    }
+
+    public double getExpressionY(double x){
+        expression.removeAllArguments();
+        Argument arg = new Argument("x", x);
+        expression.addArguments(arg);
+        return expression.calculate();
     }
 
     /**
@@ -43,6 +51,29 @@ public class Line {
         for (int i = 0; i < n_points; i++){
             int x = ((int)(Math.random() * (ub - lb)) + lb);
             points.add(new Point(x, getY(x)));
+        }
+    }
+
+    public void calculateExpressionRandomPoints(int lb, int ub, int n_points){
+        clearPoints();
+        for (int i = 0; i < n_points; i++){
+            int x = ((int)(Math.random() * (ub - lb)) + lb);
+
+            points.add(new Point(x, (getExpressionY(x) * 1000) / 1000.0));
+        }
+    }
+
+    public void calculateIncrementalPoints(int lb, int ub, int increment){
+        clearPoints();
+        for (int i = lb; i < ub; i += increment){
+            points.add(new Point(i, getY(i)));
+        }
+    }
+
+    public void calculateExpressionIncrementalPoints(double lb, double ub, double increment){
+        clearPoints();
+        for (double i = lb; i < ub; i += increment){
+            points.add(new Point(i, getExpressionY(i)));
         }
     }
 
@@ -173,53 +204,5 @@ public class Line {
         points = new ArrayList<>();
     }
 
-    /**
-     *
-     * @param g Java Graphics2D rendering engine
-     * @param color Desired color
-     */
-    public void drawPoints(Main main, Graphics2D g, Color color){
-        g.setColor(color);
-        for (Point point : points){
-            g.fillOval((int)(point.screenX), (main.screenHeight - (int)point.screenY), 4, 4);
-        }
-    }
-
-    /**
-     *
-     * @param g Java Graphics2D rendering engine
-     * @param color Desired color
-     */
-    public void drawErrorPoints(Main main, Graphics2D g, Color color){
-        g.setColor(color);
-        for (Point point : errorPoints){
-            g.fillOval((int)point.screenX, main.screenHeight - (int)point.screenY, 4, 4);
-        }
-    }
-
-    /**
-     *
-     * @param main Main class for screenWidth and screenHeight variables
-     * @param g Java Graphics2D rendering engine
-     * @param color Desired color
-     */
-    public void drawInfo(Main main, Graphics2D g, Color color){
-        g.setColor(color);
-        g.drawString("Slope: " + slope, 10, 50);
-        g.drawString("Y-Intercept: " + yIntercept, 10, 70);
-    }
-
-
-    /**
-     *
-     * @param time Milliseconds to pause for
-     */
-    public void pause(int time){
-        try {
-            Thread.sleep(time);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 
 }

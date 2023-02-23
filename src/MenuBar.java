@@ -1,5 +1,7 @@
+
 import javax.swing.*;
 import java.awt.*;
+import org.mariuszgromada.math.mxparser.*;
 
 public class MenuBar {
 
@@ -9,15 +11,10 @@ public class MenuBar {
     public Graph graph;
     public JPanel menuPanel;
 
-    public JTextArea titleTextArea = new JTextArea("Advanced Functions Grapher");
-    public JTextArea introLabel = new JTextArea("This program is a grapher equipped with various common data analysis algorithms.");
+    public JTextField expressionInput = new JTextField();
 
-    public JTextField slopeInput = new JTextField();
-    public JTextField yInterceptInput = new JTextField();
-    public JTextField errorInput = new JTextField();
-
-    public JButton gradientDescentButton = new JButton("Gradient Descent");
-    public JButton kmeansClusteringButton = new JButton("K-Means Algorithm");
+    public JButton button1 = new JButton("Button 1");
+    public JButton button2 = new JButton("Button 2");
 
     public JButton clearPoints = new JButton("Clear Points");
     public JButton clearLines = new JButton("Clear Lines");
@@ -36,7 +33,6 @@ public class MenuBar {
 
         menuPanel.setBounds(0, 0, menuBarWidth, menuBarHeight);
         menuPanel.setBackground(Color.lightGray);
-
         menuPanel.setLayout(new GridLayout(5, 2));
 
     }
@@ -44,47 +40,39 @@ public class MenuBar {
     public void addMenuBarComponents(){
 
 
-        JLabel slopeLabel = new JLabel("Slope");
-        slopeLabel.setHorizontalAlignment(JLabel.CENTER);
+        JLabel expressionLabel = new JLabel("Expression");
+        expressionLabel.setHorizontalAlignment(JLabel.CENTER);
 
-        menuPanel.add(slopeLabel);
-        menuPanel.add(slopeInput);
 
-        JLabel yInterceptLabel = new JLabel("Y-Intercept");
-        yInterceptLabel.setHorizontalAlignment(JLabel.CENTER);
+        menuPanel.add(expressionLabel);
+        menuPanel.add(expressionInput);
 
-        menuPanel.add(yInterceptLabel);
-        menuPanel.add(yInterceptInput);
-
-        JLabel errorLabel = new JLabel("Error");
-        errorLabel.setHorizontalAlignment(JLabel.CENTER);
-
-        menuPanel.add(errorLabel);
-        menuPanel.add(errorInput);
-
-        menuPanel.add(gradientDescentButton);
-        menuPanel.add(kmeansClusteringButton);
+        menuPanel.add(button1);
+        menuPanel.add(button2);
 
         menuPanel.add(clearPoints);
         menuPanel.add(clearLines);
 
-        gradientDescentButton.addActionListener(e -> {
+        button1.addActionListener(e -> {
 
-            if (graph.points.size() < 2) {
-                JOptionPane.showMessageDialog(null, "Must have at least 2 points");
-                return;
-            }
+            Line line = new Line(2, 7);
+            line.calculateRandomPoints(-10, 10, 20);
+            line.calculateErrorPoints(10, false);
+            graph.points = line.errorPoints;
 
-            try {
-                String userInput = JOptionPane.showInputDialog("Enter the number of iterations (>500, default 1000)");
-                int iterations = userInput.equals("") ? 1000 : Integer.parseInt(userInput);
-                Line line = graph.gradientDescent(0.0001, iterations);
-                line.calculateRandomPoints(-400, 400, 10);
-                graph.addLine(line);
+        });
 
-            } catch (NumberFormatException exception) {
-                JOptionPane.showMessageDialog(null, "Please enter a valid number");
-            }
+        expressionInput.addActionListener(e -> {
+
+            System.out.println("expression input");
+            System.out.println(expressionInput.getText());
+
+            Expression expression = new Expression(expressionInput.getText());
+
+            Line line = new Line(expression);
+            line.calculateExpressionIncrementalPoints(-10, 10, 0.1);
+
+            graph.points = line.points;
 
         });
 

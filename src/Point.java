@@ -12,11 +12,18 @@ public class Point{
         this.y = y;
     }
 
-    // every tick mark is 50 pixels away but worth it
-    // 50 pixels = 1 unit on graph
+
     public void convertToScreen(int graphWidth, int graphHeight, int graphXInterval, int graphYInterval){
         screenX = (x * graphXInterval) + (double)(graphWidth / 2);
         screenY = (double)(graphHeight / 2) - (y * graphYInterval);
     }
+
+//    public void convertToScreen(int graphWidth, int graphHeight, double graphXScale, double graphYScale, int graphXPixelsPerUnit, int graphYPixelsPerUnit){
+//        screenX = (double)(graphWidth / 2) + (x * graphXScale);
+//        screenY = (double)(graphHeight / 2) - (y * graphYScale);
+//
+//        System.out.println(screenX);
+//        System.out.println(screenY);
+//    }
 
 }

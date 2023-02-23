@@ -1,11 +1,14 @@
+import org.mariuszgromada.math.mxparser.License;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
-import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 
-public class Main implements Runnable, MouseWheelListener, MouseListener, MouseMotionListener, ActionListener {
+
+
+public class Main implements Runnable, MouseWheelListener, MouseListener, MouseMotionListener, KeyListener, ActionListener {
 
     public JFrame frame;
     public JPanel panel;
@@ -34,6 +37,7 @@ public class Main implements Runnable, MouseWheelListener, MouseListener, MouseM
     public Main(){
 
         setUpGraphics();
+        License.iConfirmNonCommercialUse("Bryan Sukidi");
 
     }
 
@@ -70,6 +74,7 @@ public class Main implements Runnable, MouseWheelListener, MouseListener, MouseM
         canvas.addMouseWheelListener(this);
         canvas.addMouseMotionListener(this);
         canvas.addMouseListener(this);
+        canvas.addKeyListener(this);
 
         panel.add(canvas);
 
@@ -94,9 +99,12 @@ public class Main implements Runnable, MouseWheelListener, MouseListener, MouseM
         try {
             graph.drawGrid(g, graphPanelWidth, screenHeight, new Color(0, 0, 0, 25));
             graph.drawAxes(g, graphPanelWidth, screenHeight, Color.black);
-
             graph.drawLines(g);
-            graph.drawPoints(g, Color.red);
+
+//            graph.drawPoints(g, Color.pink);
+            graph.drawLinePoints(g, Color.black);
+
+
         } catch (ConcurrentModificationException e){
             System.out.println("ConcurrentModificationException");
         }
@@ -114,6 +122,28 @@ public class Main implements Runnable, MouseWheelListener, MouseListener, MouseM
         }
     }
 
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    public void keyPressed(KeyEvent e) {
+        int key = e.getKeyCode();
+
+        if (key == KeyEvent.VK_1){
+
+            graph.graphXScale = 2;
+            graph.graphXPixelsPerUnit = 50;
+        }
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
 
@@ -124,13 +154,13 @@ public class Main implements Runnable, MouseWheelListener, MouseListener, MouseM
         int notches = e.getWheelRotation();
         if (notches < 0) {
             System.out.println("Mouse wheel moved UP " + -notches + " notch(es)");
-            graph.graphXInterval -= 4;
-            graph.graphYInterval -= 2;
+            graph.graphXPixelsPerUnit -= 4;
+            graph.graphYPixelsPerUnit -= 2;
 
         } else {
             System.out.println("Mouse wheel moved DOWN " + notches + " notch(es)");
-            graph.graphXInterval += 4;
-            graph.graphYInterval += 2;
+            graph.graphXPixelsPerUnit += 4;
+            graph.graphYPixelsPerUnit += 2;
         }
     }
 
@@ -151,20 +181,21 @@ public class Main implements Runnable, MouseWheelListener, MouseListener, MouseM
 
     @Override
     public void mousePressed(MouseEvent e) {
-        int mouseX = e.getX();
-        int mouseY = e.getY();
 
-        double x = graph.convertXCoordinateToValue(mouseX);
-        double y = graph.convertYCoordinateToValue(mouseY);
+        if (e.isMetaDown()){
+            int mouseX = e.getX();
+            int mouseY = e.getY();
+            double x = graph.convertXCoordinateToValue(mouseX);
+            double y = graph.convertYCoordinateToValue(mouseY);
 
-        x = Math.round(x * 1000.0) / 1000.0;
-        y = Math.round(y * 1000.0) / 1000.0;
+            x = Math.round(x * 1000.0) / 1000.0;
+            y = Math.round(y * 1000.0) / 1000.0;
 
-        graph.addPoint(new Point(x, y));
+            graph.addPoint(new Point(x, y));
 
+            System.out.println("x: " + x + " y: " + y);
+        }
 
-
-        System.out.println("x: " + x + " y: " + y);
     }
 
     @Override

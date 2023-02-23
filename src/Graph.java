@@ -7,15 +7,14 @@ public class Graph {
     public int graphWidth;
     public int graphHeight;
 
-    public int graphYPixelsPerUnit = 10;
-    public int graphYScale = 5;
+    public int graphYScale = 1;
+    public int graphYPixelsPerUnit = 40;
 
-    public int graphXPixelsPerUnit = 10;
-    public int graphXScale = 5;
+    public int graphXScale = 1;
+    public int graphXPixelsPerUnit = 40;
 
-
-    public ArrayList<Line> lines = new ArrayList<>();
-    public ArrayList<Point> points = new ArrayList<>();
+    public ArrayList<Line> mountedLines = new ArrayList<>();
+    public ArrayList<Point> mountedPoints = new ArrayList<>();
 
     public Graph(int graphWidth, int graphHeight){
         this.graphWidth = graphWidth;
@@ -24,60 +23,54 @@ public class Graph {
 
     public void addLine(Line line){
         System.out.println("Adding line");
-        lines.add(line);
+        mountedLines.add(line);
     }
 
     public void addPoint(Point point){
         System.out.println("Adding point");
-        points.add(point);
+        mountedPoints.add(point);
+    }
+
+    public void addPoints(ArrayList<Point> new_points){
+        mountedPoints.addAll(new_points);
     }
 
     public void clearLines(){
-        lines.clear();
+        mountedLines.clear();
     }
 
-    public void clearPoints(){ points.clear(); }
+    public void clearPoints(){ mountedPoints.clear(); }
 
     public void drawPoints(Graphics2D g2, Color color){
         g2.setColor(color);
 
-        for (Point point : points){
+        for (Point point : mountedPoints){
             point.convertToScreen(graphWidth, graphHeight, graphXPixelsPerUnit, graphYPixelsPerUnit);
             int diameter = 6;
             g2.fillOval((int)point.screenX - (diameter / 2), (int)point.screenY - (diameter / 2), diameter, diameter);
         }
     }
 
-    public void drawLinePoints(Graphics2D g2, Color color){
-        g2.setColor(color);
-        g2.setStroke(new BasicStroke(4));
-
-        for (int i = 0; i < points.size() - 1; i++){
-            Point a = points.get(i);
-            Point b = points.get(i + 1);
-            a.convertToScreen(graphWidth, graphHeight, graphXPixelsPerUnit, graphYPixelsPerUnit);
-            b.convertToScreen(graphWidth, graphHeight, graphXPixelsPerUnit, graphYPixelsPerUnit);
-
-            g2.drawLine((int)a.screenX, (int)a.screenY, (int)b.screenX, (int)b.screenY);
-        }
-    }
-
     public void drawLines(Graphics2D g2){
-        for (Line line : lines){
+        for (Line line : mountedLines){
             drawLine(g2, line);
         }
     }
 
     public void drawLine(Graphics2D g2, Line line){
         g2.setColor(line.color);
-        g2.setStroke(new BasicStroke(2));
+        g2.setStroke(new BasicStroke(4));
 
-        for (int i = 0; i < line.points.size() - 1; i++){
+        for (ArrayList<Point> pointsSegment : line.pointsLists){
 
-            line.points.get(i).convertToScreen(graphWidth, graphHeight, graphXPixelsPerUnit, graphYPixelsPerUnit);
-            line.points.get(i + 1).convertToScreen(graphWidth, graphHeight, graphXPixelsPerUnit, graphYPixelsPerUnit);
+            for (int i = 0; i < pointsSegment.size() - 1; i++){
+                Point a = pointsSegment.get(i);
+                Point b = pointsSegment.get(i + 1);
+                a.convertToScreen(graphWidth, graphHeight, graphXPixelsPerUnit, graphYPixelsPerUnit);
+                b.convertToScreen(graphWidth, graphHeight, graphXPixelsPerUnit, graphYPixelsPerUnit);
 
-            g2.drawLine((int)line.points.get(i).screenX, (int)line.points.get(i).screenY, (int)line.points.get(i + 1).screenX, (int)line.points.get(i + 1).screenY);
+                g2.drawLine((int)a.screenX, (int)a.screenY, (int)b.screenX, (int)b.screenY);
+            }
 
         }
     }
@@ -131,8 +124,6 @@ public class Graph {
         }
 
     }
-
-
 
     public double convertYCoordinateToValue(int mouseY) {
         return (double)(graphHeight / 2 - mouseY) / (graphYPixelsPerUnit);

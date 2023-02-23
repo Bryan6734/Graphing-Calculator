@@ -6,9 +6,9 @@ import java.awt.event.*;
 import java.awt.image.BufferStrategy;
 import java.util.ConcurrentModificationException;
 
-
-
 public class Main implements Runnable, MouseWheelListener, MouseListener, MouseMotionListener, KeyListener, ActionListener {
+
+    public final String fullName = "Bryan Sukidi";
 
     public JFrame frame;
     public JPanel panel;
@@ -26,8 +26,6 @@ public class Main implements Runnable, MouseWheelListener, MouseListener, MouseM
 
     public Graph graph = new Graph(graphPanelWidth, screenHeight);
 
-    public Line modelLine;
-
 
     public static void main(String[] args){
         Main ex = new Main();
@@ -37,7 +35,7 @@ public class Main implements Runnable, MouseWheelListener, MouseListener, MouseM
     public Main(){
 
         setUpGraphics();
-        License.iConfirmNonCommercialUse("Bryan Sukidi");
+        License.iConfirmNonCommercialUse(fullName);
 
     }
 
@@ -45,7 +43,6 @@ public class Main implements Runnable, MouseWheelListener, MouseListener, MouseM
     @Override
     public void run() {
 
-        // dont use any outside methods; run at 60fps limit
         while (true){
             try {
                 Thread.sleep(1000 / 60);
@@ -97,18 +94,18 @@ public class Main implements Runnable, MouseWheelListener, MouseListener, MouseM
         g.clearRect(0, 0, screenWidth, screenHeight);
 
         try {
+            // Draws the Grid (don't change)
             graph.drawGrid(g, graphPanelWidth, screenHeight, new Color(0, 0, 0, 25));
+
+            // Draws the Axes (don't change)
             graph.drawAxes(g, graphPanelWidth, screenHeight, Color.black);
+
             graph.drawLines(g);
-
-//            graph.drawPoints(g, Color.pink);
-            graph.drawLinePoints(g, Color.black);
-
+            graph.drawPoints(g, Color.black);
 
         } catch (ConcurrentModificationException e){
             System.out.println("ConcurrentModificationException");
         }
-
 
         g.dispose();
         bufferStrategy.show();
@@ -131,12 +128,6 @@ public class Main implements Runnable, MouseWheelListener, MouseListener, MouseM
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
 
-        if (key == KeyEvent.VK_1){
-
-            graph.graphXScale = 2;
-            graph.graphXPixelsPerUnit = 50;
-        }
-
     }
 
     @Override
@@ -151,17 +142,17 @@ public class Main implements Runnable, MouseWheelListener, MouseListener, MouseM
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
-        int notches = e.getWheelRotation();
-        if (notches < 0) {
-            System.out.println("Mouse wheel moved UP " + -notches + " notch(es)");
-            graph.graphXPixelsPerUnit -= 4;
-            graph.graphYPixelsPerUnit -= 2;
-
-        } else {
-            System.out.println("Mouse wheel moved DOWN " + notches + " notch(es)");
-            graph.graphXPixelsPerUnit += 4;
-            graph.graphYPixelsPerUnit += 2;
-        }
+//        int notches = e.getWheelRotation();
+//        if (notches < 0) {
+//            System.out.println("Mouse wheel moved UP " + -notches + " notch(es)");
+//            graph.graphXPixelsPerUnit -= 4;
+//            graph.graphYPixelsPerUnit -= 2;
+//
+//        } else {
+//            System.out.println("Mouse wheel moved DOWN " + notches + " notch(es)");
+//            graph.graphXPixelsPerUnit += 4;
+//            graph.graphYPixelsPerUnit += 2;
+//        }
     }
 
     @Override
